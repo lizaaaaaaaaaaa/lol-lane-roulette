@@ -223,7 +223,7 @@ function renderSlot(slotKey) {
     <img class="icon" src="${getIconUrl(champion.id)}" alt="${champion.ja} icon" loading="lazy" />
   `;
   infoTitle.textContent = champion.ja;
-  infoText.textContent = `${champion.name} / ${getLaneLabel(lane)}`;
+  infoText.textContent = `${getLaneLabel(lane)} の候補から選出`;
   rollButton.disabled = true;
   rerollButton.disabled = rerollsLeft <= 0;
   clearButton.disabled = false;
@@ -237,7 +237,7 @@ function renderBanSlots() {
     button.innerHTML = `
       <span>${getSlotLabel(slotKey)}</span>
       <strong>${champion ? champion.ja : "未設定"}</strong>
-      ${champion ? `<small>${champion.name}</small>` : ""}
+      
     `;
   });
 }
@@ -256,7 +256,7 @@ function renderSettingsList() {
         <div class="setting-champion">
           <img src="${getIconUrl(champion.id)}" alt="${champion.ja}" />
           <span>${champion.ja}</span>
-          <small>${champion.name}</small>
+          
         </div>
         <button type="button" class="ban-select-button ${selectedForCurrentBan ? "selected" : ""}" data-id="${champion.id}">
           ${selectedForCurrentBan ? "BAN選択中" : "選択中BAN枠へ設定"}
@@ -369,7 +369,18 @@ function getSplashUrl(championId) {
 }
 
 function normalizeKeyword(value) {
-  return String(value || "").toLowerCase().replace(/\s+/g, "");
+  return toKatakana(
+    String(value || "")
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[\s\u3000・＝=\-'’']/g, "")
+  );
+}
+
+function toKatakana(value) {
+  return value.replace(/[ぁ-ん]/g, (char) =>
+    String.fromCharCode(char.charCodeAt(0) + 0x60)
+  );
 }
 
 function loadArray(key) {

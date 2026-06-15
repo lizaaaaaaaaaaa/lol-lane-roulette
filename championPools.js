@@ -7,8 +7,8 @@ const LANES = [
 ];
 
 const SIDES = [
-  { key: "blue", label: "Blue Side" },
-  { key: "red", label: "Red Side" }
+  { key: "blue", label: "青サイド" },
+  { key: "red", label: "赤サイド" }
 ];
 
 const CHAMPION_MASTER = {
@@ -224,7 +224,7 @@ const CHAMPION_POOLS = Object.fromEntries(
     lane,
     ids.map((id, index) => ({
       ...CHAMPION_MASTER[id],
-      weight: Math.max(1, ids.length - index)
+      weight: 1
     }))
   ])
 );
