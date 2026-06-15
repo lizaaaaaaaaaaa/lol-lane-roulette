@@ -174,8 +174,10 @@ function bindGlobalEvents() {
   const rollCompleteRandomButton = $("rollCompleteRandomButton");
   const resetCompleteRandomButton = $("resetCompleteRandomButton");
   const copyLaneResultsButton = $("copyLaneResultsButton");
+  const copyLaneResultsButtonTop = $("copyLaneResultsButtonTop");
   const copyLaneResultsButtonBottom = $("copyLaneResultsButtonBottom");
   const copyCompleteResultsButton = $("copyCompleteResultsButton");
+  const copyCompleteResultsButtonTop = $("copyCompleteResultsButtonTop");
   const copyCompleteResultsButtonBottom = $("copyCompleteResultsButtonBottom");
   const openSettingsButton = $("openSettingsButton");
   const clearSettingsButton = $("clearSettingsButton");
@@ -186,8 +188,10 @@ function bindGlobalEvents() {
   if (rollCompleteRandomButton) rollCompleteRandomButton.addEventListener("click", rollAllCompleteRandom);
   if (resetCompleteRandomButton) resetCompleteRandomButton.addEventListener("click", resetCompleteRandom);
   if (copyLaneResultsButton) copyLaneResultsButton.addEventListener("click", () => copyResultsToClipboard("lane"));
+  if (copyLaneResultsButtonTop) copyLaneResultsButtonTop.addEventListener("click", () => copyResultsToClipboard("lane"));
   if (copyLaneResultsButtonBottom) copyLaneResultsButtonBottom.addEventListener("click", () => copyResultsToClipboard("lane"));
   if (copyCompleteResultsButton) copyCompleteResultsButton.addEventListener("click", () => copyResultsToClipboard("complete"));
+  if (copyCompleteResultsButtonTop) copyCompleteResultsButtonTop.addEventListener("click", () => copyResultsToClipboard("complete"));
   if (copyCompleteResultsButtonBottom) copyCompleteResultsButtonBottom.addEventListener("click", () => copyResultsToClipboard("complete"));
   if (openSettingsButton) {
     openSettingsButton.addEventListener("click", () => {
