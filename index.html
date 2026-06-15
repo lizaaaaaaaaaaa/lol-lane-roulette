@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoL Lane Roulette</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">League of Legends</p>
+        <h1>Lane Pick Roulette</h1>
+        <p class="lead">青サイド・赤サイド別に、レーンごとの指定候補からランダム抽選します。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="rollAllButton" class="primary">全レーン抽選</button>
+        <button id="resetButton" class="ghost">リセット</button>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="status-card">
+        <span>Data Dragon</span>
+        <strong id="versionLabel">読み込み中</strong>
+      </div>
+      <div class="status-card">
+        <span>抽選ルール</span>
+        <strong>リセットまで再登場なし / 再抽選3回</strong>
+      </div>
+      <button id="openSettingsButton" class="secondary">BAN・未所持設定</button>
+    </section>
+
+    <section class="board">
+      <div class="side-panel blue-side">
+        <h2>Blue Side</h2>
+        <div id="blueSlots" class="slots"></div>
+      </div>
+      <div class="side-panel red-side">
+        <h2>Red Side</h2>
+        <div id="redSlots" class="slots"></div>
+      </div>
+    </section>
+
+    <section class="notes">
+      <h3>仕様メモ</h3>
+      <ul>
+        <li>同じチャンピオンは、リセットを押すまで再抽選を含めて再登場しません。</li>
+        <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
+        <li>BANは青/赤サイド・各レーンごとに1体ずつ設定できます。</li>
+        <li>未所持はサイド・レーンに関係なく、全候補チャンピオンから設定できます。</li>
+      </ul>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" class="settings-content">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Settings</p>
+          <h2>BAN・未所持チャンピオン</h2>
+        </div>
+        <button value="cancel" class="icon-button" aria-label="閉じる">×</button>
+      </div>
+
+      <section class="settings-section">
+        <div class="section-heading">
+          <h3>BAN設定</h3>
+          <p>青サイド・赤サイドの各レーンごとに1体までBANできます。先にBAN枠を選び、下の一覧からチャンピオンを選択してください。</p>
+        </div>
+        <div id="banSlots" class="ban-slots"></div>
+      </section>
+
+      <section class="settings-section">
+        <div class="section-heading">
+          <h3>チャンピオン検索・選択</h3>
+          <p>検索はBAN選択と未所持選択の両方に使えます。</p>
+        </div>
+        <div class="search-row">
+          <input id="championSearch" type="search" placeholder="チャンピオン名で検索" />
+          <button id="clearSettingsButton" type="button" class="danger">設定クリア</button>
+        </div>
+        <div id="championSettingsList" class="settings-list"></div>
+      </section>
+
+      <div class="dialog-footer">
+        <button id="confirmSettingsButton" type="button" class="primary">BAN・未所持を確定</button>
+        <button value="cancel" class="secondary">閉じる</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="championPools.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+:root {
+  --bg: #050914;
+  --panel: rgba(12, 21, 38, 0.92);
+  --panel-soft: rgba(22, 35, 58, 0.82);
+  --gold: #c8aa6e;
+  --gold-light: #f0d58a;
+  --text: #f0e6d2;
+  --muted: #a09b8c;
+  --blue: #1f8fff;
+  --red: #ff4b5c;
+  --danger: #e04f5f;
+  --border: rgba(200, 170, 110, 0.26);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(31, 143, 255, 0.24), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(255, 75, 92, 0.20), transparent 30%),
+    linear-gradient(135deg, #030712 0%, #07111f 50%, #050914 100%);
+}
+
+.app {
+  width: min(1180px, 94vw);
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold-light);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+h1, h2, h3, p { margin-top: 0; }
+
+h1 {
+  margin-bottom: 8px;
+  font-size: clamp(34px, 5vw, 64px);
+  letter-spacing: -0.04em;
+}
+
+.lead {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.hero-actions, .toolbar, .slot-actions, .search-row, .dialog-footer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button, input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+
+button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.primary { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #08111f; }
+.secondary { background: rgba(200, 170, 110, 0.16); color: var(--gold-light); border: 1px solid var(--border); }
+.ghost, .ghost-small { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid rgba(255,255,255,0.10); }
+.ghost-small { padding: 10px 12px; }
+.danger { background: rgba(224, 79, 95, 0.14); color: #ff99a4; border: 1px solid rgba(224, 79, 95, 0.3); }
+
+.toolbar {
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.status-card {
+  min-width: 190px;
+  flex: 1;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.status-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.status-card strong {
+  color: var(--text);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.side-panel {
+  position: relative;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.side-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+}
+
+.blue-side::before { background: linear-gradient(135deg, var(--blue), transparent 35%); }
+.red-side::before { background: linear-gradient(135deg, var(--red), transparent 35%); }
+
+.side-panel h2 {
+  position: relative;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.slots {
+  position: relative;
+  display: grid;
+  gap: 14px;
+}
+
+.slot-card {
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px;
+  background: var(--panel-soft);
+  overflow: hidden;
+}
+
+.slot-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.lane-pill {
+  color: #08111f;
+  background: var(--gold);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.reroll-count {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.champion-visual {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+  background: rgba(0,0,0,0.28);
+}
+
+.champion-visual.empty {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.champion-visual .splash {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+}
+
+.champion-visual .icon {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.champion-info {
+  padding: 14px;
+}
+
+.champion-info h3 {
+  margin-bottom: 4px;
+  font-size: 24px;
+}
+
+.champion-info p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.slot-actions {
+  padding: 0 14px 14px;
+}
+
+.slot-actions button {
+  flex: 1;
+  padding: 10px 12px;
+}
+
+.roll-button { background: var(--gold); color: #07111f; }
+.reroll-button { background: rgba(31, 143, 255, 0.18); color: #9dccff; border: 1px solid rgba(31, 143, 255, 0.28); }
+
+.notes {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+}
+
+.notes h3 { color: var(--text); }
+.notes li { margin: 8px 0; line-height: 1.7; }
+code { color: var(--gold-light); }
+
+.settings-dialog {
+  width: min(860px, 94vw);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 0;
+  color: var(--text);
+  background: #07111f;
+  box-shadow: var(--shadow);
+}
+
+.settings-dialog::backdrop { background: rgba(0,0,0,0.72); }
+
+.settings-content { padding: 22px; }
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+
+.search-row { margin-bottom: 16px; }
+
+.search-row input {
+  flex: 1;
+  min-width: 220px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+.settings-list {
+  max-height: 58vh;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.setting-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.setting-champion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.setting-champion img {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+}
+
+.setting-row label {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dialog-footer {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+@media (max-width: 820px) {
+  .hero { align-items: stretch; flex-direction: column; }
+  .hero-actions button { flex: 1; }
+  .board { grid-template-columns: 1fr; }
+  .setting-row { grid-template-columns: 1fr; align-items: start; }
+}
+
+.settings-section {
+  margin-top: 18px;
+}
+
+.section-heading h3 {
+  margin-bottom: 6px;
+}
+
+.section-heading p {
+  margin-bottom: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+.ban-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ban-slot-button {
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  display: grid;
+  gap: 4px;
+}
+
+.ban-slot-button.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(200, 170, 110, 0.18);
+}
+
+.ban-slot-button span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ban-slot-button strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.ban-slot-button small,
+.setting-champion small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ban-select-button {
+  background: rgba(200, 170, 110, 0.12);
+  color: var(--gold-light);
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+
+.ban-select-button.selected {
+  background: var(--gold);
+  color: #07111f;
+}
+
+.setting-champion {
+  min-width: 0;
+}
+
+.setting-champion span,
+.setting-champion small {
+  display: block;
+}
+
+@media (max-width: 820px) {
+  .ban-slots { grid-template-columns: 1fr; }
+  .ban-select-button { width: 100%; }
+}
