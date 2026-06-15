@@ -660,3 +660,23 @@ code { color: var(--gold-light); }
 .page-section.hidden {
   display: none !important;
 }
+
+/* v8: visible result copy buttons */
+.copy-results-area {
+  display: flex;
+  justify-content: center;
+  margin: 22px 0 24px;
+}
+
+.copy-results-button {
+  width: min(100%, 520px);
+  padding: 14px 18px;
+  border: 1px solid rgba(31, 143, 255, 0.45);
+  background: linear-gradient(135deg, rgba(31, 143, 255, 0.38), rgba(31, 143, 255, 0.20));
+  color: #e7f3ff;
+  box-shadow: 0 14px 36px rgba(31, 143, 255, 0.12);
+}
+
+.copy-results-button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}

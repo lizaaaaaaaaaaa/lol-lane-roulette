@@ -174,7 +174,9 @@ function bindGlobalEvents() {
   const rollCompleteRandomButton = $("rollCompleteRandomButton");
   const resetCompleteRandomButton = $("resetCompleteRandomButton");
   const copyLaneResultsButton = $("copyLaneResultsButton");
+  const copyLaneResultsButtonBottom = $("copyLaneResultsButtonBottom");
   const copyCompleteResultsButton = $("copyCompleteResultsButton");
+  const copyCompleteResultsButtonBottom = $("copyCompleteResultsButtonBottom");
   const openSettingsButton = $("openSettingsButton");
   const clearSettingsButton = $("clearSettingsButton");
   const confirmSettingsButton = $("confirmSettingsButton");
@@ -184,7 +186,9 @@ function bindGlobalEvents() {
   if (rollCompleteRandomButton) rollCompleteRandomButton.addEventListener("click", rollAllCompleteRandom);
   if (resetCompleteRandomButton) resetCompleteRandomButton.addEventListener("click", resetCompleteRandom);
   if (copyLaneResultsButton) copyLaneResultsButton.addEventListener("click", () => copyResultsToClipboard("lane"));
+  if (copyLaneResultsButtonBottom) copyLaneResultsButtonBottom.addEventListener("click", () => copyResultsToClipboard("lane"));
   if (copyCompleteResultsButton) copyCompleteResultsButton.addEventListener("click", () => copyResultsToClipboard("complete"));
+  if (copyCompleteResultsButtonBottom) copyCompleteResultsButtonBottom.addEventListener("click", () => copyResultsToClipboard("complete"));
   if (openSettingsButton) {
     openSettingsButton.addEventListener("click", () => {
       resetPendingSettings();
