@@ -649,3 +649,14 @@ code { color: var(--gold-light); }
     flex: 1;
   }
 }
+
+/* v7: strict tab display control */
+.page-section {
+  display: none !important;
+}
+.page-section.is-active {
+  display: block !important;
+}
+.page-section.hidden {
+  display: none !important;
+}

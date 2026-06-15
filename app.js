@@ -173,6 +173,8 @@ function bindGlobalEvents() {
   const resetButton = $("resetButton");
   const rollCompleteRandomButton = $("rollCompleteRandomButton");
   const resetCompleteRandomButton = $("resetCompleteRandomButton");
+  const copyLaneResultsButton = $("copyLaneResultsButton");
+  const copyCompleteResultsButton = $("copyCompleteResultsButton");
   const openSettingsButton = $("openSettingsButton");
   const clearSettingsButton = $("clearSettingsButton");
   const confirmSettingsButton = $("confirmSettingsButton");
@@ -181,6 +183,8 @@ function bindGlobalEvents() {
   if (resetButton) resetButton.addEventListener("click", resetAll);
   if (rollCompleteRandomButton) rollCompleteRandomButton.addEventListener("click", rollAllCompleteRandom);
   if (resetCompleteRandomButton) resetCompleteRandomButton.addEventListener("click", resetCompleteRandom);
+  if (copyLaneResultsButton) copyLaneResultsButton.addEventListener("click", () => copyResultsToClipboard("lane"));
+  if (copyCompleteResultsButton) copyCompleteResultsButton.addEventListener("click", () => copyResultsToClipboard("complete"));
   if (openSettingsButton) {
     openSettingsButton.addEventListener("click", () => {
       resetPendingSettings();
@@ -208,8 +212,19 @@ function activateModeFromHash() {
 
 function activateMode(mode, updateHash) {
   const isComplete = mode === "complete";
-  if (laneModeSection) laneModeSection.classList.toggle("hidden", isComplete);
-  if (completeModeSection) completeModeSection.classList.toggle("hidden", !isComplete);
+
+  if (laneModeSection) {
+    laneModeSection.classList.toggle("is-active", !isComplete);
+    laneModeSection.classList.toggle("hidden", isComplete);
+    laneModeSection.hidden = isComplete;
+  }
+
+  if (completeModeSection) {
+    completeModeSection.classList.toggle("is-active", isComplete);
+    completeModeSection.classList.toggle("hidden", !isComplete);
+    completeModeSection.hidden = !isComplete;
+  }
+
   if (laneModeTab) {
     laneModeTab.classList.toggle("active", !isComplete);
     laneModeTab.setAttribute("aria-selected", String(!isComplete));
@@ -223,6 +238,62 @@ function activateMode(mode, updateHash) {
     if (window.location.hash !== nextHash) {
       history.replaceState(null, "", nextHash);
     }
+  }
+}
+
+async function copyResultsToClipboard(mode) {
+  const text = buildResultsText(mode);
+  if (!text) {
+    alert("コピーできる抽選結果がありません。先に抽選してください。");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("抽選結果をクリップボードにコピーしました。");
+  } catch (error) {
+    fallbackCopyText(text);
+  }
+}
+
+function buildResultsText(mode) {
+  const isComplete = mode === "complete";
+  const title = isComplete ? "完全ランダム 抽選結果" : "全レーン抽選 結果";
+  const resultSource = isComplete ? state.completeResults : state.results;
+  const lines = [title];
+  let hasResult = false;
+
+  for (const side of SIDES) {
+    lines.push("");
+    lines.push(`${side.label}`);
+    for (const lane of LANES) {
+      const slotKey = getSlotKey(side.key, lane.key);
+      const champion = resultSource[slotKey];
+      const championName = champion ? champion.ja : "未抽選";
+      if (champion) hasResult = true;
+      lines.push(`${lane.label}: ${championName}`);
+    }
+  }
+
+  return hasResult ? lines.join("\n") : "";
+}
+
+function fallbackCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    document.execCommand("copy");
+    alert("抽選結果をクリップボードにコピーしました。");
+  } catch (error) {
+    alert("コピーに失敗しました。ブラウザの権限設定を確認してください。");
+  } finally {
+    document.body.removeChild(textarea);
   }
 }
 
