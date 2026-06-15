@@ -16,6 +16,7 @@
       </div>
       <div class="hero-actions">
         <button id="rollAllButton" class="primary">全レーン抽選</button>
+        <button id="openCompleteRandomButton" class="secondary">完全ランダム</button>
         <button id="resetButton" class="ghost">リセット</button>
       </div>
     </header>
@@ -30,6 +31,50 @@
         <strong>リセットまで再登場なし / 再抽選3回</strong>
       </div>
       <button id="openSettingsButton" class="secondary">BAN・未所持設定</button>
+    </section>
+
+
+    <section id="completeRandomPanel" class="complete-random-panel hidden" aria-live="polite">
+      <div class="complete-random-header">
+        <div>
+          <p class="eyebrow">Extra Mode</p>
+          <h2>完全ランダム</h2>
+          <p>全レーン抽選とは別管理で、全候補チャンピオンから青/赤サイド10枠を抽選します。</p>
+        </div>
+        <div class="complete-actions">
+          <button id="rollCompleteRandomButton" class="primary">完全ランダム抽選</button>
+          <button id="resetCompleteRandomButton" class="ghost">完全ランダムをリセット</button>
+        </div>
+      </div>
+
+      <div class="complete-settings">
+        <label>
+          <span>ユーミの抽選</span>
+          <select id="yuumiRuleSelect">
+            <option value="support_only">SUPのみ</option>
+            <option value="non_jungle">JG以外</option>
+            <option value="all">全てのレーン</option>
+          </select>
+        </label>
+        <label>
+          <span>一部エンチャンターの抽選</span>
+          <select id="enchanterRuleSelect">
+            <option value="non_jungle">JG以外</option>
+            <option value="all">全てのレーン</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="board complete-board">
+        <div class="side-panel blue-side">
+          <h2>青サイド / 完全ランダム</h2>
+          <div id="completeBlueSlots" class="slots"></div>
+        </div>
+        <div class="side-panel red-side">
+          <h2>赤サイド / 完全ランダム</h2>
+          <div id="completeRedSlots" class="slots"></div>
+        </div>
+      </div>
     </section>
 
     <section class="board">
@@ -48,8 +93,9 @@
       <ul>
         <li>同じチャンピオンは、リセットを押すまで再抽選を含めて再登場しません。</li>
         <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
+        <li>完全ランダムは追加機能として、メインの全レーン抽選とは別の結果・再抽選回数で管理します。</li>
         <li>BANは青/赤サイド・各レーンごとに1体ずつ設定できます。</li>
-      
+        <li>未所持はサイド・レーンに関係なく、全候補チャンピオンから設定できます。</li>
       </ul>
     </section>
   </main>

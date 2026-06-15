@@ -1,9 +1,9 @@
 const LANES = [
-  { key: "top", label: "Top" },
-  { key: "jungle", label: "Jungle" },
-  { key: "mid", label: "Mid" },
-  { key: "adc", label: "ADC / Bot" },
-  { key: "support", label: "Support" }
+  { key: "top", label: "TOP" },
+  { key: "jungle", label: "JG" },
+  { key: "mid", label: "MID" },
+  { key: "adc", label: "BOT" },
+  { key: "support", label: "SUP" }
 ];
 
 const SIDES = [
@@ -218,6 +218,11 @@ const CHAMPION_POOL_IDS = {
     "Neeko", "Bard", "Braum", "Rakan", "Lulu", "Renata"
   ]
 };
+
+const ENCHANTER_IDS = [
+  "Karma", "Janna", "Zilean", "Senna", "Seraphine", "Sona",
+  "Soraka", "Taric", "Nami", "Milio", "Lulu", "Renata"
+];
 
 const CHAMPION_POOLS = Object.fromEntries(
   Object.entries(CHAMPION_POOL_IDS).map(([lane, ids]) => [

@@ -8,6 +8,9 @@ const state = {
   results: {},
   rerollsLeft: {},
   sessionUsed: new Set(),
+  completeResults: {},
+  completeRerollsLeft: {},
+  completeUsed: new Set(),
   bansBySlot: loadObject(STORAGE_KEYS.bansBySlot),
   unowned: new Set(loadArray(STORAGE_KEYS.unowned)),
   pendingBansBySlot: {},
@@ -22,15 +25,22 @@ const settingsDialog = document.getElementById("settingsDialog");
 const championSettingsList = document.getElementById("championSettingsList");
 const championSearch = document.getElementById("championSearch");
 const banSlots = document.getElementById("banSlots");
+const completeRandomPanel = document.getElementById("completeRandomPanel");
+const completeBlueSlots = document.getElementById("completeBlueSlots");
+const completeRedSlots = document.getElementById("completeRedSlots");
+const yuumiRuleSelect = document.getElementById("yuumiRuleSelect");
+const enchanterRuleSelect = document.getElementById("enchanterRuleSelect");
 
 init();
 
 async function init() {
   buildSlots();
+  buildCompleteRandomSlots();
   buildBanSlots();
   bindGlobalEvents();
   await loadLatestDDragonVersion();
   renderAllSlots();
+  renderAllCompleteSlots();
   resetPendingSettings();
   renderBanSlots();
   renderSettingsList();
@@ -52,7 +62,10 @@ function buildSlots() {
 
       slot.innerHTML = `
         <div class="slot-topline">
-          <span class="lane-pill">${lane.label}</span>
+          <div class="lane-title">
+            ${getLaneIconSvg(lane.key)}
+            <span class="lane-pill">${lane.label}</span>
+          </div>
           <span class="reroll-count">再抽選 3 / 3</span>
         </div>
         <div class="champion-visual empty">
@@ -79,6 +92,52 @@ function buildSlots() {
   }
 }
 
+
+function buildCompleteRandomSlots() {
+  for (const side of SIDES) {
+    for (const lane of LANES) {
+      const slotKey = getSlotKey(side.key, lane.key);
+      state.completeResults[slotKey] = null;
+      state.completeRerollsLeft[slotKey] = 3;
+
+      const slot = document.createElement("article");
+      slot.className = "slot-card complete-slot-card";
+      slot.dataset.completeSlotKey = slotKey;
+      slot.dataset.side = side.key;
+      slot.dataset.lane = lane.key;
+
+      slot.innerHTML = `
+        <div class="slot-topline">
+          <div class="lane-title">
+            ${getLaneIconSvg(lane.key)}
+            <span class="lane-pill">${lane.label}</span>
+          </div>
+          <span class="reroll-count">再抽選 3 / 3</span>
+        </div>
+        <div class="champion-visual empty">
+          <span>未抽選</span>
+        </div>
+        <div class="champion-info">
+          <h3>---</h3>
+          <p>完全ランダム候補から抽選してください</p>
+        </div>
+        <div class="slot-actions">
+          <button class="roll-button">抽選</button>
+          <button class="reroll-button" disabled>再抽選</button>
+          <button class="clear-button ghost-small" disabled>解除</button>
+        </div>
+      `;
+
+      slot.querySelector(".roll-button").addEventListener("click", () => rollCompleteSlot(side.key, lane.key, false));
+      slot.querySelector(".reroll-button").addEventListener("click", () => rollCompleteSlot(side.key, lane.key, true));
+      slot.querySelector(".clear-button").addEventListener("click", () => clearCompleteSlot(side.key, lane.key));
+
+      if (side.key === "blue") completeBlueSlots.appendChild(slot);
+      if (side.key === "red") completeRedSlots.appendChild(slot);
+    }
+  }
+}
+
 function buildBanSlots() {
   for (const side of SIDES) {
     for (const lane of LANES) {
@@ -99,6 +158,9 @@ function buildBanSlots() {
 
 function bindGlobalEvents() {
   document.getElementById("rollAllButton").addEventListener("click", rollAll);
+  document.getElementById("openCompleteRandomButton").addEventListener("click", toggleCompleteRandomPanel);
+  document.getElementById("rollCompleteRandomButton").addEventListener("click", rollAllCompleteRandom);
+  document.getElementById("resetCompleteRandomButton").addEventListener("click", resetCompleteRandom);
   document.getElementById("resetButton").addEventListener("click", resetAll);
   document.getElementById("openSettingsButton").addEventListener("click", () => {
     resetPendingSettings();
@@ -165,6 +227,83 @@ function resetAll() {
   }
 }
 
+
+function toggleCompleteRandomPanel() {
+  completeRandomPanel.classList.toggle("hidden");
+  if (!completeRandomPanel.classList.contains("hidden")) {
+    completeRandomPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function rollAllCompleteRandom() {
+  for (const side of ["blue", "red"]) {
+    for (const lane of LANES) {
+      const slotKey = getSlotKey(side, lane.key);
+      if (!state.completeResults[slotKey]) rollCompleteSlot(side, lane.key, false);
+    }
+  }
+}
+
+function rollCompleteSlot(side, lane, isReroll) {
+  const slotKey = getSlotKey(side, lane);
+  if (isReroll && state.completeRerollsLeft[slotKey] <= 0) return;
+
+  const pool = getCompleteRandomAvailablePool(slotKey, lane);
+  if (pool.length === 0) {
+    alert("完全ランダムの抽選候補がありません。BAN・未所持・既に出たチャンピオン・追加設定を見直すか、完全ランダムをリセットしてください。");
+    return;
+  }
+
+  const nextChampion = weightedRandom(pool);
+  if (isReroll) state.completeRerollsLeft[slotKey] -= 1;
+
+  state.completeResults[slotKey] = nextChampion;
+  state.completeUsed.add(nextChampion.id);
+  renderCompleteSlot(slotKey);
+}
+
+function clearCompleteSlot(side, lane) {
+  const slotKey = getSlotKey(side, lane);
+  state.completeResults[slotKey] = null;
+  state.completeRerollsLeft[slotKey] = 3;
+  renderCompleteSlot(slotKey);
+}
+
+function resetCompleteRandom() {
+  state.completeUsed.clear();
+  for (const side of SIDES) {
+    for (const lane of LANES) clearCompleteSlot(side.key, lane.key);
+  }
+}
+
+function getCompleteRandomAvailablePool(slotKey, lane) {
+  const slotBanId = state.bansBySlot[slotKey];
+  return getUniqueChampions().filter((champion) => {
+    if (state.completeUsed.has(champion.id)) return false;
+    if (slotBanId && champion.id === slotBanId) return false;
+    if (state.unowned.has(champion.id)) return false;
+    if (!isAllowedByCompleteRandomRules(champion.id, lane)) return false;
+    return true;
+  }).map((champion) => ({ ...champion, weight: 1 }));
+}
+
+function isAllowedByCompleteRandomRules(championId, lane) {
+  if (championId === "Yuumi") {
+    const rule = yuumiRuleSelect.value;
+    if (rule === "support_only") return lane === "support";
+    if (rule === "non_jungle") return lane !== "jungle";
+    return true;
+  }
+
+  if (ENCHANTER_IDS.includes(championId)) {
+    const rule = enchanterRuleSelect.value;
+    if (rule === "non_jungle") return lane !== "jungle";
+    return true;
+  }
+
+  return true;
+}
+
 function getAvailablePool(slotKey, lane) {
   const slotBanId = state.bansBySlot[slotKey];
   return CHAMPION_POOLS[lane].filter((champion) => {
@@ -189,6 +328,49 @@ function weightedRandom(pool) {
 
 function renderAllSlots() {
   Object.keys(state.results).forEach(renderSlot);
+}
+
+
+function renderAllCompleteSlots() {
+  Object.keys(state.completeResults).forEach(renderCompleteSlot);
+}
+
+function renderCompleteSlot(slotKey) {
+  const slot = document.querySelector(`[data-complete-slot-key="${slotKey}"]`);
+  const champion = state.completeResults[slotKey];
+  const rerollsLeft = state.completeRerollsLeft[slotKey];
+  const lane = slot.dataset.lane;
+
+  slot.querySelector(".reroll-count").textContent = `再抽選 ${rerollsLeft} / 3`;
+
+  const visual = slot.querySelector(".champion-visual");
+  const infoTitle = slot.querySelector(".champion-info h3");
+  const infoText = slot.querySelector(".champion-info p");
+  const rollButton = slot.querySelector(".roll-button");
+  const rerollButton = slot.querySelector(".reroll-button");
+  const clearButton = slot.querySelector(".clear-button");
+
+  if (!champion) {
+    visual.className = "champion-visual empty";
+    visual.innerHTML = "<span>未抽選</span>";
+    infoTitle.textContent = "---";
+    infoText.textContent = `${getLaneLabel(lane)} の完全ランダム候補から抽選`;
+    rollButton.disabled = false;
+    rerollButton.disabled = true;
+    clearButton.disabled = true;
+    return;
+  }
+
+  visual.className = "champion-visual";
+  visual.innerHTML = `
+    <img class="splash" src="${getSplashUrl(champion.id)}" alt="${champion.ja}" loading="lazy" />
+    <img class="icon" src="${getIconUrl(champion.id)}" alt="${champion.ja} icon" loading="lazy" />
+  `;
+  infoTitle.textContent = champion.ja;
+  infoText.textContent = `${getLaneLabel(lane)} / 完全ランダムから選出`;
+  rollButton.disabled = true;
+  rerollButton.disabled = rerollsLeft <= 0;
+  clearButton.disabled = false;
 }
 
 function renderSlot(slotKey) {
@@ -330,7 +512,20 @@ function removeInvalidResults() {
       state.rerollsLeft[slotKey] = 3;
     }
   }
+
+  for (const [slotKey, champion] of Object.entries(state.completeResults)) {
+    if (!champion) continue;
+    const lane = slotKey.split("-")[1];
+    const bannedForSlot = state.bansBySlot[slotKey] === champion.id;
+    const unowned = state.unowned.has(champion.id);
+    const notAllowed = !isAllowedByCompleteRandomRules(champion.id, lane);
+    if (bannedForSlot || unowned || notAllowed) {
+      state.completeResults[slotKey] = null;
+      state.completeRerollsLeft[slotKey] = 3;
+    }
+  }
 }
+
 
 function getUniqueChampions() {
   const map = new Map();
@@ -343,6 +538,19 @@ function getUniqueChampions() {
 function getChampionById(championId) {
   if (!championId) return null;
   return getUniqueChampions().find((champion) => champion.id === championId) || CHAMPION_MASTER[championId] || null;
+}
+
+
+function getLaneIconSvg(laneKey) {
+  const icons = {
+    top: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v4h-4v10H5V5Zm4 4v6h2V9H9Z"/></svg>',
+    jungle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 6.2L20 6.6l-2.6 5.8L21 17l-5.8-1.3L12 21l-3.2-5.3L3 17l3.6-4.6L4 6.6l5.8 2.6L12 3Z"/></svg>',
+    mid: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18 18 6l2 2L8 20H4v-4l2 2Zm-2-8V4h6L8 6H6v2l-2 2Zm10 10 2-2h2v-2l2-2v6h-6Z"/></svg>',
+    adc: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5V5Zm4 4v6h6V9H9Zm8-6 4 4-2 2-4-4 2-2ZM3 17l4 4 2-2-4-4-2 2Z"/></svg>',
+    support: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l2.4 4.8L20 10l-4 3.9.9 5.6L12 16.8l-4.9 2.7.9-5.6L4 10l5.6-1.2L12 4Zm0 5.2-1 2-2.2.5 1.6 1.6-.4 2.2 2-1.1 2 1.1-.4-2.2 1.6-1.6-2.2-.5-1-2Z"/></svg>'
+  };
+
+  return `<span class="lane-icon lane-icon-${laneKey}">${icons[laneKey] || ""}</span>`;
 }
 
 function getSlotKey(side, lane) {
