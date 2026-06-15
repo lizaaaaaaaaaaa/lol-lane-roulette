@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoL Complete Random Roulette</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-mode="complete">
+  <main class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Extra Mode</p>
+        <h1>完全ランダム</h1>
+        <p class="lead">全レーン抽選とは別ページ・別状態で、全候補チャンピオンから青/赤サイド10枠を抽選します。</p>
+      </div>
+      <div class="hero-actions">
+        <button id="rollCompleteRandomButton" class="primary">完全ランダム抽選</button>
+        <button id="resetCompleteRandomButton" class="ghost">完全ランダムをリセット</button>
+        <a class="secondary button-link" href="index.html">全レーン抽選へ戻る</a>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="status-card">
+        <span>Data Dragon</span>
+        <strong id="versionLabel">読み込み中</strong>
+      </div>
+      <div class="status-card">
+        <span>抽選ルール</span>
+        <strong>完全ランダム専用 / 再抽選3回</strong>
+      </div>
+      <button id="openSettingsButton" class="secondary">BAN・未所持設定</button>
+    </section>
+
+    <section class="complete-random-panel standalone" aria-live="polite">
+      <div class="complete-random-header">
+        <div>
+          <p class="eyebrow">Additional Settings</p>
+          <h2>完全ランダム追加設定</h2>
+          <p>この設定は完全ランダムページ内の抽選にのみ使います。全レーン抽選ページとは混ざりません。</p>
+        </div>
+      </div>
+
+      <div class="complete-settings">
+        <label>
+          <span>ユーミの抽選</span>
+          <select id="yuumiRuleSelect">
+            <option value="support_only">SUPのみ</option>
+            <option value="non_jungle">JG以外</option>
+            <option value="all">全てのレーン</option>
+          </select>
+        </label>
+        <label>
+          <span>一部エンチャンターの抽選</span>
+          <select id="enchanterRuleSelect">
+            <option value="non_jungle">JG以外</option>
+            <option value="all">全てのレーン</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="board complete-board">
+        <div class="side-panel blue-side">
+          <h2>青サイド / 完全ランダム</h2>
+          <div id="completeBlueSlots" class="slots"></div>
+        </div>
+        <div class="side-panel red-side">
+          <h2>赤サイド / 完全ランダム</h2>
+          <div id="completeRedSlots" class="slots"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes">
+      <h3>仕様メモ</h3>
+      <ul>
+        <li>このページは追加機能の「完全ランダム」専用ページです。</li>
+        <li>全レーン抽選ページの結果・再抽選回数・使用済みチャンピオンとは別管理です。</li>
+        <li>完全ランダム内でも、同じチャンピオンは完全ランダムリセットまで再登場しません。</li>
+        <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
+        <li>BAN・未所持設定は全レーン抽選と共通で除外条件として使います。</li>
+      </ul>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" class="settings-content">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Settings</p>
+          <h2>BAN・未所持チャンピオン</h2>
+        </div>
+        <button value="cancel" class="icon-button" aria-label="閉じる">×</button>
+      </div>
+
+      <section class="settings-section">
+        <div class="section-heading">
+          <h3>BAN設定</h3>
+          <p>青サイド・赤サイドの各レーンごとに1体までBANできます。完全ランダムでも該当サイド・レーンのBANとして除外されます。</p>
+        </div>
+        <div id="banSlots" class="ban-slots"></div>
+      </section>
+
+      <section class="settings-section">
+        <div class="section-heading">
+          <h3>チャンピオン検索・選択</h3>
+          <p>検索はBAN選択と未所持選択の両方に使えます。</p>
+        </div>
+        <div class="search-row">
+          <input id="championSearch" type="search" placeholder="日本語チャンピオン名で検索" />
+          <button id="clearSettingsButton" type="button" class="danger">設定クリア</button>
+        </div>
+        <div id="championSettingsList" class="settings-list"></div>
+      </section>
+
+      <div class="dialog-footer">
+        <button id="confirmSettingsButton" type="button" class="primary">BAN・未所持を確定</button>
+        <button value="cancel" class="secondary">閉じる</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="championPools.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

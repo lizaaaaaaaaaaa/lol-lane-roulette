@@ -18,25 +18,31 @@ const state = {
   selectedBanSlot: null
 };
 
-const blueSlots = document.getElementById("blueSlots");
-const redSlots = document.getElementById("redSlots");
-const versionLabel = document.getElementById("versionLabel");
-const settingsDialog = document.getElementById("settingsDialog");
-const championSettingsList = document.getElementById("championSettingsList");
-const championSearch = document.getElementById("championSearch");
-const banSlots = document.getElementById("banSlots");
-const completeRandomPanel = document.getElementById("completeRandomPanel");
-const completeBlueSlots = document.getElementById("completeBlueSlots");
-const completeRedSlots = document.getElementById("completeRedSlots");
-const yuumiRuleSelect = document.getElementById("yuumiRuleSelect");
-const enchanterRuleSelect = document.getElementById("enchanterRuleSelect");
+const pageMode = document.body.dataset.mode || "lane";
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+const blueSlots = $("blueSlots");
+const redSlots = $("redSlots");
+const versionLabel = $("versionLabel");
+const settingsDialog = $("settingsDialog");
+const championSettingsList = $("championSettingsList");
+const championSearch = $("championSearch");
+const banSlots = $("banSlots");
+const completeRandomPanel = $("completeRandomPanel");
+const completeBlueSlots = $("completeBlueSlots");
+const completeRedSlots = $("completeRedSlots");
+const yuumiRuleSelect = $("yuumiRuleSelect");
+const enchanterRuleSelect = $("enchanterRuleSelect");
 
 init();
 
 async function init() {
-  buildSlots();
-  buildCompleteRandomSlots();
-  buildBanSlots();
+  if (blueSlots && redSlots) buildSlots();
+  if (completeBlueSlots && completeRedSlots) buildCompleteRandomSlots();
+  if (banSlots) buildBanSlots();
   bindGlobalEvents();
   await loadLatestDDragonVersion();
   renderAllSlots();
@@ -157,32 +163,40 @@ function buildBanSlots() {
 }
 
 function bindGlobalEvents() {
-  document.getElementById("rollAllButton").addEventListener("click", rollAll);
-  document.getElementById("openCompleteRandomButton").addEventListener("click", toggleCompleteRandomPanel);
-  document.getElementById("rollCompleteRandomButton").addEventListener("click", rollAllCompleteRandom);
-  document.getElementById("resetCompleteRandomButton").addEventListener("click", resetCompleteRandom);
-  document.getElementById("resetButton").addEventListener("click", resetAll);
-  document.getElementById("openSettingsButton").addEventListener("click", () => {
-    resetPendingSettings();
-    if (!state.selectedBanSlot) state.selectedBanSlot = getSlotKey("blue", "top");
-    renderBanSlots();
-    renderSettingsList();
-    settingsDialog.showModal();
-  });
-  document.getElementById("clearSettingsButton").addEventListener("click", clearPendingSettings);
-  document.getElementById("confirmSettingsButton").addEventListener("click", confirmSettings);
-  championSearch.addEventListener("input", renderSettingsList);
-}
+  const rollAllButton = $("rollAllButton");
+  const resetButton = $("resetButton");
+  const rollCompleteRandomButton = $("rollCompleteRandomButton");
+  const resetCompleteRandomButton = $("resetCompleteRandomButton");
+  const openSettingsButton = $("openSettingsButton");
+  const clearSettingsButton = $("clearSettingsButton");
+  const confirmSettingsButton = $("confirmSettingsButton");
 
+  if (rollAllButton) rollAllButton.addEventListener("click", rollAll);
+  if (resetButton) resetButton.addEventListener("click", resetAll);
+  if (rollCompleteRandomButton) rollCompleteRandomButton.addEventListener("click", rollAllCompleteRandom);
+  if (resetCompleteRandomButton) resetCompleteRandomButton.addEventListener("click", resetCompleteRandom);
+  if (openSettingsButton) {
+    openSettingsButton.addEventListener("click", () => {
+      resetPendingSettings();
+      if (!state.selectedBanSlot) state.selectedBanSlot = getSlotKey("blue", "top");
+      renderBanSlots();
+      renderSettingsList();
+      settingsDialog.showModal();
+    });
+  }
+  if (clearSettingsButton) clearSettingsButton.addEventListener("click", clearPendingSettings);
+  if (confirmSettingsButton) confirmSettingsButton.addEventListener("click", confirmSettings);
+  if (championSearch) championSearch.addEventListener("input", renderSettingsList);
+}
 async function loadLatestDDragonVersion() {
   try {
     const res = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
     const versions = await res.json();
     state.version = versions[0];
-    versionLabel.textContent = state.version;
+    if (versionLabel) versionLabel.textContent = state.version;
   } catch (error) {
     state.version = "15.24.1";
-    versionLabel.textContent = `${state.version} / fallback`;
+    if (versionLabel) versionLabel.textContent = `${state.version} / fallback`;
   }
 }
 
@@ -289,14 +303,14 @@ function getCompleteRandomAvailablePool(slotKey, lane) {
 
 function isAllowedByCompleteRandomRules(championId, lane) {
   if (championId === "Yuumi") {
-    const rule = yuumiRuleSelect.value;
+    const rule = yuumiRuleSelect ? yuumiRuleSelect.value : "support_only";
     if (rule === "support_only") return lane === "support";
     if (rule === "non_jungle") return lane !== "jungle";
     return true;
   }
 
   if (ENCHANTER_IDS.includes(championId)) {
-    const rule = enchanterRuleSelect.value;
+    const rule = enchanterRuleSelect ? enchanterRuleSelect.value : "non_jungle";
     if (rule === "non_jungle") return lane !== "jungle";
     return true;
   }
@@ -327,16 +341,19 @@ function weightedRandom(pool) {
 }
 
 function renderAllSlots() {
+  if (!blueSlots || !redSlots) return;
   Object.keys(state.results).forEach(renderSlot);
 }
 
 
 function renderAllCompleteSlots() {
+  if (!completeBlueSlots || !completeRedSlots) return;
   Object.keys(state.completeResults).forEach(renderCompleteSlot);
 }
 
 function renderCompleteSlot(slotKey) {
   const slot = document.querySelector(`[data-complete-slot-key="${slotKey}"]`);
+  if (!slot) return;
   const champion = state.completeResults[slotKey];
   const rerollsLeft = state.completeRerollsLeft[slotKey];
   const lane = slot.dataset.lane;
@@ -375,6 +392,7 @@ function renderCompleteSlot(slotKey) {
 
 function renderSlot(slotKey) {
   const slot = document.querySelector(`[data-slot-key="${slotKey}"]`);
+  if (!slot) return;
   const champion = state.results[slotKey];
   const rerollsLeft = state.rerollsLeft[slotKey];
   const lane = slot.dataset.lane;
@@ -412,6 +430,7 @@ function renderSlot(slotKey) {
 }
 
 function renderBanSlots() {
+  if (!banSlots) return;
   banSlots.querySelectorAll(".ban-slot-button").forEach((button) => {
     const slotKey = button.dataset.slotKey;
     const champion = getChampionById(state.pendingBansBySlot[slotKey]);
@@ -425,6 +444,7 @@ function renderBanSlots() {
 }
 
 function renderSettingsList() {
+  if (!championSettingsList || !championSearch) return;
   const keyword = normalizeKeyword(championSearch.value);
   const champions = getUniqueChampions().filter((champion) => {
     const text = normalizeKeyword(`${champion.ja} ${champion.name} ${champion.id}`);
@@ -483,7 +503,7 @@ function confirmSettings() {
   saveArray(STORAGE_KEYS.unowned, [...state.unowned]);
   removeInvalidResults();
   renderAllSlots();
-  settingsDialog.close();
+  if (settingsDialog) settingsDialog.close();
 }
 
 function resetPendingSettings() {
