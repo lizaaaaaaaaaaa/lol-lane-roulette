@@ -426,25 +426,35 @@ code { color: var(--gold-light); }
 }
 
 .lane-title {
-  display: inline-grid;
-  grid-template-columns: auto auto;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  min-height: 26px;
 }
 
-.lane-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  color: var(--gold);
-  filter: drop-shadow(0 2px 6px rgba(200, 170, 110, 0.22));
+.lane-badge {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(200, 170, 110, 0.2));
 }
 
-.lane-icon svg {
-  width: 22px;
+.lane-badge img {
+  display: block;
   height: 22px;
-  fill: currentColor;
+  width: auto;
+  object-fit: contain;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .complete-random-panel {

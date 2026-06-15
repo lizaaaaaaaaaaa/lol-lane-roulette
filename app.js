@@ -75,8 +75,7 @@ function buildSlots() {
       slot.innerHTML = `
         <div class="slot-topline">
           <div class="lane-title">
-            ${getLaneIconSvg(lane.key)}
-            <span class="lane-pill">${lane.label}</span>
+            ${getLaneBadgeMarkup(lane.key, lane.label)}
           </div>
           <span class="reroll-count">再抽選 3 / 3</span>
         </div>
@@ -121,8 +120,7 @@ function buildCompleteRandomSlots() {
       slot.innerHTML = `
         <div class="slot-topline">
           <div class="lane-title">
-            ${getLaneIconSvg(lane.key)}
-            <span class="lane-pill">${lane.label}</span>
+            ${getLaneBadgeMarkup(lane.key, lane.label)}
           </div>
           <span class="reroll-count">再抽選 3 / 3</span>
         </div>
@@ -676,16 +674,17 @@ function getChampionById(championId) {
 }
 
 
-function getLaneIconSvg(laneKey) {
-  const icons = {
-    top: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v4h-4v10H5V5Zm4 4v6h2V9H9Z"/></svg>',
-    jungle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 6.2L20 6.6l-2.6 5.8L21 17l-5.8-1.3L12 21l-3.2-5.3L3 17l3.6-4.6L4 6.6l5.8 2.6L12 3Z"/></svg>',
-    mid: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18 18 6l2 2L8 20H4v-4l2 2Zm-2-8V4h6L8 6H6v2l-2 2Zm10 10 2-2h2v-2l2-2v6h-6Z"/></svg>',
-    adc: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5V5Zm4 4v6h6V9H9Zm8-6 4 4-2 2-4-4 2-2ZM3 17l4 4 2-2-4-4-2 2Z"/></svg>',
-    support: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l2.4 4.8L20 10l-4 3.9.9 5.6L12 16.8l-4.9 2.7.9-5.6L4 10l5.6-1.2L12 4Zm0 5.2-1 2-2.2.5 1.6 1.6-.4 2.2 2-1.1 2 1.1-.4-2.2 1.6-1.6-2.2-.5-1-2Z"/></svg>'
+function getLaneBadgeMarkup(laneKey, label) {
+  const srcMap = {
+    top: "assets/lanes/top.png",
+    jungle: "assets/lanes/jungle.png",
+    mid: "assets/lanes/mid.png",
+    adc: "assets/lanes/adc.png",
+    support: "assets/lanes/support.png"
   };
-
-  return `<span class="lane-icon lane-icon-${laneKey}">${icons[laneKey] || ""}</span>`;
+  const src = srcMap[laneKey] || "";
+  if (!src) return `<span class="lane-pill">${label}</span>`;
+  return `<span class="lane-badge lane-badge-${laneKey}"><img src="${src}" alt="${label}" loading="eager"><span class="sr-only">${label}</span></span>`;
 }
 
 function getSlotKey(side, lane) {
