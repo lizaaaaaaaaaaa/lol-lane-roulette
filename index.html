@@ -6,53 +6,132 @@
   <title>LoL Lane Roulette</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body data-mode="lane">
+<body data-mode="tabs">
   <main class="app">
-    <header class="hero">
+    <header class="hero compact-hero">
       <div>
         <p class="eyebrow">League of Legends</p>
         <h1>レーン別ピックルーレット</h1>
-        <p class="lead">青サイド・赤サイド別に、レーンごとの指定候補からランダム抽選します。</p>
+        <p class="lead">全レーン抽選をメイン機能、完全ランダムを追加機能として同じURL内で切り替えます。</p>
       </div>
       <div class="hero-actions">
-        <button id="rollAllButton" class="primary">全レーン抽選</button>
-        <a class="secondary button-link" href="complete-random.html">完全ランダムページへ</a>
-        <button id="resetButton" class="ghost">リセット</button>
+        <button id="openSettingsButton" class="secondary">BAN・未所持設定</button>
       </div>
     </header>
 
-    <section class="toolbar">
+    <section class="toolbar mode-toolbar">
       <div class="status-card">
         <span>Data Dragon</span>
         <strong id="versionLabel">読み込み中</strong>
       </div>
       <div class="status-card">
-        <span>抽選ルール</span>
-        <strong>リセットまで再登場なし / 再抽選3回</strong>
+        <span>共通除外</span>
+        <strong>BAN・未所持は両モードに反映</strong>
       </div>
-      <button id="openSettingsButton" class="secondary">BAN・未所持設定</button>
-    </section>
-
-    <section class="board">
-      <div class="side-panel blue-side">
-        <h2>青サイド</h2>
-        <div id="blueSlots" class="slots"></div>
-      </div>
-      <div class="side-panel red-side">
-        <h2>赤サイド</h2>
-        <div id="redSlots" class="slots"></div>
+      <div class="mode-tabs" role="tablist" aria-label="抽選モード切り替え">
+        <button id="laneModeTab" class="mode-tab active" type="button" role="tab" aria-selected="true" aria-controls="laneModeSection" data-target="lane">全レーン抽選</button>
+        <button id="completeModeTab" class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="completeModeSection" data-target="complete">完全ランダム</button>
       </div>
     </section>
 
-    <section class="notes">
-      <h3>仕様メモ</h3>
-      <ul>
-        <li>このページはメイン機能の「全レーン抽選」専用ページです。</li>
-        <li>同じチャンピオンは、リセットを押すまで再抽選を含めて再登場しません。</li>
-        <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
-        <li>BANは青/赤サイド・各レーンごとに1体ずつ設定できます。</li>
-        <li>未所持はサイド・レーンに関係なく、全候補チャンピオンから設定できます。</li>
-      </ul>
+    <section id="laneModeSection" class="page-section active" data-section="lane" role="tabpanel" aria-labelledby="laneModeTab">
+      <div class="mode-header-card">
+        <div>
+          <p class="eyebrow">Main Mode</p>
+          <h2>全レーン抽選</h2>
+          <p>青サイド・赤サイド別に、各レーンの指定候補から抽選します。完全ランダムとは結果・再抽選回数・使用済み管理を分離しています。</p>
+        </div>
+        <div class="mode-actions">
+          <button id="rollAllButton" class="primary">全レーン抽選</button>
+          <button id="resetButton" class="ghost">リセット</button>
+        </div>
+      </div>
+
+      <section class="board">
+        <div class="side-panel blue-side">
+          <h2>青サイド</h2>
+          <div id="blueSlots" class="slots"></div>
+        </div>
+        <div class="side-panel red-side">
+          <h2>赤サイド</h2>
+          <div id="redSlots" class="slots"></div>
+        </div>
+      </section>
+
+      <section class="notes">
+        <h3>全レーン抽選の仕様</h3>
+        <ul>
+          <li>このモードはメイン機能です。</li>
+          <li>同じチャンピオンは、リセットを押すまで再抽選を含めて再登場しません。</li>
+          <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
+          <li>BANは青/赤サイド・各レーンごとに1体ずつ設定できます。</li>
+          <li>未所持はサイド・レーンに関係なく、全候補チャンピオンから設定できます。</li>
+        </ul>
+      </section>
+    </section>
+
+    <section id="completeModeSection" class="page-section hidden" data-section="complete" role="tabpanel" aria-labelledby="completeModeTab">
+      <div class="mode-header-card complete-mode-header">
+        <div>
+          <p class="eyebrow">Extra Mode</p>
+          <h2>完全ランダム</h2>
+          <p>追加機能です。全レーン抽選とは結果・再抽選回数・使用済みチャンピオンを別管理します。</p>
+        </div>
+        <div class="mode-actions">
+          <button id="rollCompleteRandomButton" class="primary">完全ランダム抽選</button>
+          <button id="resetCompleteRandomButton" class="ghost">完全ランダムをリセット</button>
+        </div>
+      </div>
+
+      <section class="complete-random-panel standalone" aria-live="polite">
+        <div class="complete-random-header">
+          <div>
+            <p class="eyebrow">Additional Settings</p>
+            <h2>完全ランダム追加設定</h2>
+            <p>この設定は完全ランダムモード内の抽選にのみ使います。全レーン抽選とは混ざりません。</p>
+          </div>
+        </div>
+
+        <div class="complete-settings">
+          <label>
+            <span>ユーミの抽選</span>
+            <select id="yuumiRuleSelect">
+              <option value="support_only">SUPのみ</option>
+              <option value="non_jungle">JG以外</option>
+              <option value="all">全てのレーン</option>
+            </select>
+          </label>
+          <label>
+            <span>一部エンチャンターの抽選</span>
+            <select id="enchanterRuleSelect">
+              <option value="non_jungle">JG以外</option>
+              <option value="all">全てのレーン</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="board complete-board">
+          <div class="side-panel blue-side">
+            <h2>青サイド / 完全ランダム</h2>
+            <div id="completeBlueSlots" class="slots"></div>
+          </div>
+          <div class="side-panel red-side">
+            <h2>赤サイド / 完全ランダム</h2>
+            <div id="completeRedSlots" class="slots"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes">
+        <h3>完全ランダムの仕様</h3>
+        <ul>
+          <li>このモードは追加機能です。同じURL内でタブ切り替えします。</li>
+          <li>全レーン抽選の結果・再抽選回数・使用済みチャンピオンとは別管理です。</li>
+          <li>完全ランダム内でも、同じチャンピオンは完全ランダムリセットまで再登場しません。</li>
+          <li>各枠は初回抽選後、最大3回まで再抽選できます。</li>
+          <li>BAN・未所持設定は全レーン抽選と共通で除外条件として使います。</li>
+        </ul>
+      </section>
     </section>
   </main>
 
@@ -69,7 +148,7 @@
       <section class="settings-section">
         <div class="section-heading">
           <h3>BAN設定</h3>
-          <p>青サイド・赤サイドの各レーンごとに1体までBANできます。先にBAN枠を選び、下の一覧からチャンピオンを選択してください。</p>
+          <p>青サイド・赤サイドの各レーンごとに1体までBANできます。完全ランダムでも該当サイド・レーンのBANとして除外されます。</p>
         </div>
         <div id="banSlots" class="ban-slots"></div>
       </section>

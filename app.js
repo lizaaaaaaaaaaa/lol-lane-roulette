@@ -36,6 +36,10 @@ const completeBlueSlots = $("completeBlueSlots");
 const completeRedSlots = $("completeRedSlots");
 const yuumiRuleSelect = $("yuumiRuleSelect");
 const enchanterRuleSelect = $("enchanterRuleSelect");
+const laneModeTab = $("laneModeTab");
+const completeModeTab = $("completeModeTab");
+const laneModeSection = $("laneModeSection");
+const completeModeSection = $("completeModeSection");
 
 init();
 
@@ -50,7 +54,9 @@ async function init() {
   resetPendingSettings();
   renderBanSlots();
   renderSettingsList();
+  activateModeFromHash();
 }
+
 
 function buildSlots() {
   for (const side of SIDES) {
@@ -187,7 +193,39 @@ function bindGlobalEvents() {
   if (clearSettingsButton) clearSettingsButton.addEventListener("click", clearPendingSettings);
   if (confirmSettingsButton) confirmSettingsButton.addEventListener("click", confirmSettings);
   if (championSearch) championSearch.addEventListener("input", renderSettingsList);
+  if (laneModeTab) laneModeTab.addEventListener("click", () => activateMode("lane", true));
+  if (completeModeTab) completeModeTab.addEventListener("click", () => activateMode("complete", true));
+  window.addEventListener("hashchange", activateModeFromHash);
+  if (yuumiRuleSelect) yuumiRuleSelect.addEventListener("change", () => { removeInvalidResults(); renderAllCompleteSlots(); });
+  if (enchanterRuleSelect) enchanterRuleSelect.addEventListener("change", () => { removeInvalidResults(); renderAllCompleteSlots(); });
 }
+
+
+function activateModeFromHash() {
+  const mode = window.location.hash === "#complete" ? "complete" : "lane";
+  activateMode(mode, false);
+}
+
+function activateMode(mode, updateHash) {
+  const isComplete = mode === "complete";
+  if (laneModeSection) laneModeSection.classList.toggle("hidden", isComplete);
+  if (completeModeSection) completeModeSection.classList.toggle("hidden", !isComplete);
+  if (laneModeTab) {
+    laneModeTab.classList.toggle("active", !isComplete);
+    laneModeTab.setAttribute("aria-selected", String(!isComplete));
+  }
+  if (completeModeTab) {
+    completeModeTab.classList.toggle("active", isComplete);
+    completeModeTab.setAttribute("aria-selected", String(isComplete));
+  }
+  if (updateHash) {
+    const nextHash = isComplete ? "#complete" : "#lane";
+    if (window.location.hash !== nextHash) {
+      history.replaceState(null, "", nextHash);
+    }
+  }
+}
+
 async function loadLatestDDragonVersion() {
   try {
     const res = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
@@ -243,10 +281,7 @@ function resetAll() {
 
 
 function toggleCompleteRandomPanel() {
-  completeRandomPanel.classList.toggle("hidden");
-  if (!completeRandomPanel.classList.contains("hidden")) {
-    completeRandomPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  activateMode("complete", true);
 }
 
 function rollAllCompleteRandom() {
@@ -503,6 +538,7 @@ function confirmSettings() {
   saveArray(STORAGE_KEYS.unowned, [...state.unowned]);
   removeInvalidResults();
   renderAllSlots();
+  renderAllCompleteSlots();
   if (settingsDialog) settingsDialog.close();
 }
 
